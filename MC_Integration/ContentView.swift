@@ -10,11 +10,11 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @State var pi = 0.0
+    @State var integralE = 0.0
     @State var totalGuesses = 0.0
     @State var totalIntegral = 0.0
     @State var radius = 1.0
-    @State var piString = "0.0"
+    @State var integralString = "0.0"
     @State var guessString = "23458"
     @State var totalGuessString = "0"
     
@@ -50,7 +50,7 @@ struct ContentView: View {
                     Text("π")
                         .font(.callout)
                         .bold()
-                    TextField("# π", text: $piString)
+                    TextField("# π", text: $integralString)
                         .padding()
                 }
                 
@@ -90,14 +90,14 @@ struct ContentView: View {
         monteCarlo.setButtonEnable(state: false)
         
         monteCarlo.guesses = Int(guessString)!
-        monteCarlo.radius = radius
+        monteCarlo.xRange = radius
         monteCarlo.totalGuesses = Int(totalGuessString) ?? Int(0.0)
         
-        await monteCarlo.calculatePI()
+        await monteCarlo.calculateIntegral()
         
         totalGuessString = monteCarlo.totalGuessesString
         
-        piString =  monteCarlo.piString
+        integralString =  monteCarlo.integralString
         
         monteCarlo.setButtonEnable(state: true)
         
@@ -107,7 +107,7 @@ struct ContentView: View {
         
         guessString = "23458"
         totalGuessString = "0.0"
-        piString =  ""
+        integralString =  ""
         monteCarlo.totalGuesses = 0
         monteCarlo.totalIntegral = 0.0
         monteCarlo.insideData = []

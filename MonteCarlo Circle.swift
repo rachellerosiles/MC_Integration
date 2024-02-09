@@ -15,14 +15,15 @@ class MonteCarloCircle: NSObject, ObservableObject {
     @MainActor @Published var outsideData = [(xPoint: Double, yPoint: Double)]()
     @Published var totalGuessesString = ""
     @Published var guessesString = ""
-    @Published var piString = ""
+    @Published var integralString = ""
     @Published var enableButton = true
     
-    var pi = 0.0
+    var integral = 0.0
     var guesses = 1
     var totalGuesses = 0
     var totalIntegral = 0.0
-    var radius = 1.0
+    var xRange = 1.0
+    var yRange = 1.0
     var firstTimeThroughLoop = true
     
     @MainActor init(withData data: Bool){
@@ -40,7 +41,7 @@ class MonteCarloCircle: NSObject, ObservableObject {
     /// - Calculates the Value of π using Monte Carlo Integration
     ///
     /// - Parameter sender: Any
-    func calculatePI() async {
+    func calculateIntegral() async {
         
         var maxGuesses = 0.0
         let boundingBoxCalculator = BoundingBox() ///Instantiates Class needed to calculate the area of the bounding box.
@@ -48,7 +49,7 @@ class MonteCarloCircle: NSObject, ObservableObject {
         
         maxGuesses = Double(guesses)
         
-        let newValue = await calculateMonteCarloIntegral(radius: radius, maxGuesses: maxGuesses)
+        let newValue = await calculateMonteCarloIntegral(domain: xRange, maxGuesses: maxGuesses)
         
         totalIntegral = totalIntegral + newValue
         
@@ -60,9 +61,9 @@ class MonteCarloCircle: NSObject, ObservableObject {
         
         ///Calculates the value of π from the area of a unit circle
         
-        pi = totalIntegral/Double(totalGuesses) * boundingBoxCalculator.calculateSurfaceArea(numberOfSides: 2, lengthOfSide1: 2.0*radius, lengthOfSide2: 2.0*radius, lengthOfSide3: 0.0)
+        integral = totalIntegral/Double(totalGuesses) * boundingBoxCalculator.calculateSurfaceArea(numberOfSides: 2, lengthOfSide1: 2.0*xRange, lengthOfSide2: 2.0*yRange, lengthOfSide3: 0.0)
         
-        await updatePiString(text: "\(pi)")
+        await updatePiString(text: "\(integral)")
         
         //piString = "\(pi)"
         
@@ -76,13 +77,13 @@ class MonteCarloCircle: NSObject, ObservableObject {
     ///   - radius: radius of circle
     ///   - maxGuesses: number of guesses to use in the calculaton
     /// - Returns: ratio of points inside to total guesses. Must mulitply by area of box in calling function
-    func calculateMonteCarloIntegral(radius: Double, maxGuesses: Double) async -> Double {
+    func calculateMonteCarloIntegral(domain: Double, maxGuesses: Double) async -> Double {
         
         var numberOfGuesses = 0.0
-        var pointsInRadius = 0.0
+        var pointsUnderCurve = 0.0
         var integral = 0.0
         var point = (xPoint: 0.0, yPoint: 0.0)
-        var radiusPoint = 0.0
+        var eNegXVal = 0.0
         
         var newInsidePoints : [(xPoint: Double, yPoint: Double)] = []
         var newOutsidePoints : [(xPoint: Double, yPoint: Double)] = []
@@ -91,17 +92,18 @@ class MonteCarloCircle: NSObject, ObservableObject {
         while numberOfGuesses < maxGuesses {
             
             /* Calculate 2 random values within the box */
-            /* Determine the distance from that point to the origin */
-            /* If the distance is less than the unit radius count the point being within the Unit Circle */
-            point.xPoint = Double.random(in: -radius...radius)
-            point.yPoint = Double.random(in: -radius...radius)
+            /* Determine e^(-x) */
+            /* If y<= e^(-x), count the point being within the Unit Circle */
+            point.xPoint = Double.random(in: 0...domain)
+            point.yPoint = Double.random(in: 0...domain)
             
-            radiusPoint = sqrt(pow(point.xPoint,2.0) + pow(point.yPoint,2.0))
+            eNegXVal = exp(Double(-point.xPoint))
+            //sqrt(pow(point.xPoint,2.0) + pow(point.yPoint,2.0))
             
             
             // if inside the circle add to the number of points in the radius
-            if((radius - radiusPoint) >= 0.0){
-                pointsInRadius += 1.0
+            if((eNegXVal - point.yPoint) >= 0.0){
+                pointsUnderCurve += 1.0
                 
                 
                 newInsidePoints.append(point)
@@ -123,7 +125,7 @@ class MonteCarloCircle: NSObject, ObservableObject {
             }
 
         
-        integral = Double(pointsInRadius)
+        integral = Double(pointsUnderCurve)
         
         //Append the points to the arrays needed for the displays
         //Don't attempt to draw more than 250,000 points to keep the display updating speed reasonable.
@@ -179,7 +181,7 @@ class MonteCarloCircle: NSObject, ObservableObject {
     /// - Parameter text: contains the string containing the current value of Pi
     @MainActor func updatePiString(text:String){
         
-        self.piString = text
+        self.integralString = text
         
     }
     
