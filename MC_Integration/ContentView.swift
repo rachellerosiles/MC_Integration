@@ -13,7 +13,9 @@ struct ContentView: View {
     @State var integralE = 0.0
     @State var totalGuesses = 0.0
     @State var totalIntegral = 0.0
+    @State var calcIntegral = 0.0
     @State var radius = 1.0
+    @State var calcIntegralString = "0.0"
     @State var integralString = "0.0"
     @State var guessString = "23458"
     @State var totalGuessString = "0"
@@ -47,10 +49,18 @@ struct ContentView: View {
                 }
                 
                 VStack(alignment: .center) {
-                    Text("π")
+                    Text("Monte Carlo Integral")
                         .font(.callout)
                         .bold()
-                    TextField("# π", text: $integralString)
+                    TextField("# integral", text: $integralString)
+                        .padding()
+                }
+                
+                VStack(alignment: .center) {
+                    Text("Calculated Integral")
+                        .font(.callout)
+                        .bold()
+                    TextField("# Guesses", text: $calcIntegralString)
                         .padding()
                 }
                 

@@ -17,7 +17,9 @@ class MonteCarloCircle: NSObject, ObservableObject {
     @Published var guessesString = ""
     @Published var integralString = ""
     @Published var enableButton = true
+    @Published var calcIntegralString = ""
     
+    var calcIntegral = 0.0
     var integral = 0.0
     var guesses = 1
     var totalGuesses = 0
@@ -42,6 +44,9 @@ class MonteCarloCircle: NSObject, ObservableObject {
     ///
     /// - Parameter sender: Any
     func calculateIntegral() async {
+        
+        //calculate actual integral
+        calcIntegral = integrate
         
         var maxGuesses = 0.0
         let boundingBoxCalculator = BoundingBox() ///Instantiates Class needed to calculate the area of the bounding box.
